@@ -1,7 +1,7 @@
 # Lofi X Rain
 
 ## Repository
-https://github.com/ZacharyHuerta/Zachary-Huerta-2305.0W1-Final-Project-Lofi-x-Rain-Screen-Saver.git
+https://github.com/ZacharyHuerta/Zachary-Huerta-2305.0W1-Final-Project-Lofi-x-Rain.git
 
 ## Desciption
 An animated and interactive program that showcases a study room with digital rain cascading outside of the room's window.
