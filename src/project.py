@@ -230,6 +230,9 @@ class Rain():
         for trail in self.trails:
             trail.draw(surface)
 
+class Room():
+    
+
 def draw_hud(surface, font_small, rain, fps):
     lines = [
         f"FPS: {fps:.0f}",
