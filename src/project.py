@@ -240,7 +240,7 @@ class Room:
 
         # Load image and treat pure black as transparent
         raw = pygame.image.load(abs_path).convert()
-        raw.set_colorkey((0, 0, 0))        # black becomes transparent
+        raw.set_colorkey((255, 255, 255))        # black becomes transparent
         self.image = pygame.transform.scale(raw, resolution)
 
     def draw(self, surface):
@@ -287,6 +287,14 @@ def main():
     info = pygame.display.Info()
     resolution = (info.current_w, info.current_h)          # match PNG canvas size
     screen = pygame.display.set_mode(resolution, flags)
+
+    orig_w, orig_h = 1456, 816
+    scale_x = resolution[0] / orig_w
+    scale_y = resolution[1] / orig_h
+    win_x = int(850 * scale_x)
+    win_y = int(98 * scale_y)
+    win_w = int(442 * scale_x)
+    win_h = int(343 * scale_y)
     pygame.display.set_caption("Study Room")
 
     clock = pygame.time.Clock()
@@ -295,7 +303,7 @@ def main():
     show_hud = True
 
     # Window hole coords (x, y, w, h) — corrected for pygame origin
-    room = Room("../assets/images/room.png", (850, 98, 442, 343), resolution)
+    room = Room("../assets/images/room.png", (win_x, win_y, win_w, win_h), resolution)
 
     rain = Rain((room.window_rect.width, room.window_rect.height), rain_font)
     rain_surface = pygame.Surface(
