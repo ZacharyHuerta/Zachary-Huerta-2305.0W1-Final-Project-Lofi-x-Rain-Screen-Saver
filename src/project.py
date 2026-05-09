@@ -241,7 +241,7 @@ class Room:
         # Load image and treat pure black as transparent
         raw = pygame.image.load(abs_path).convert()
         raw.set_colorkey((0, 0, 0))        # black becomes transparent
-        self.image = raw
+        self.image = pygame.transform.scale(raw, (1456, 816))
 
     def draw(self, surface):
         surface.blit(self.image, (0, 0))
@@ -283,7 +283,7 @@ def main():
 
     hud_font = pygame.font.SysFont("couriernew,monospace,dejavusansmono", 14)
 
-    resolution = (1280, 720)          # match PNG canvas size
+    resolution = (1456, 816)          # match PNG canvas size
     screen = pygame.display.set_mode(resolution)
     pygame.display.set_caption("Study Room")
 
