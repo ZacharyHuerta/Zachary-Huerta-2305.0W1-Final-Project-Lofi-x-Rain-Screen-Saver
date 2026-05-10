@@ -296,7 +296,7 @@ class RoomOverlay:
 
         surface.blit(overlay, (0,0))
 
-def draw_hud(surface, font_small, rain, fps):
+def draw_hud(surface, font_small, rain, room_overlay, fps):
     lines = [
         f"FPS: {fps:.0f}",
         f"Theme: {rain.theme_name.upper()} [T] next [C] auto cycle {'On' if rain.theme_cycle else 'OFF'}",
