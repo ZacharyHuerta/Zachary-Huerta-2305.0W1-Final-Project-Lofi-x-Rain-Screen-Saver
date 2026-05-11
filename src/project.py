@@ -327,6 +327,10 @@ class MusicPlayer:
         self.audio_folder = audio_folder
         self.current_idx = 0
         self.playing = False
+        self.auto_cycle = False
+        self.auto_timer = 0 
+        self.auto_interval = 30000
+        self.on_track_change = None
 
     def play(self):
         if not self.tracks:
@@ -335,18 +339,28 @@ class MusicPlayer:
         path = os.path.join(self.audio_folder, self.tracks[self.current_idx])
         pygame.mixer.music.stop()
         pygame.mixer.music.load(path)
-        pygame.mixer.music.play(-1)
+        pygame.mixer.music.play()
+        pygame.mixer.music.set_endevent(pygame.USERREVENT + 1)
         self.playing = True
 
     def next_track(self):
         self.current_idx = (self.current_idx + 1) % len(self.tracks)
         self.play()
+        if self.on_track_change:
+            self.on_track_change(self.current_track_name())
 
     def current_track_name(self):
         if not self.tracks:
             return "No tracks found"
         name = self.tracks[self.current_idx]
         return os.path.splitext(name)[0] #strips file extension
+    
+    def update(self, dt):
+        if self.auto_cycle:
+            self.auto_timer += dt
+            if self.auto_timer >= self.auto_interval:
+                self.auto_timer = 0
+                self.next_track()
 
 class MonitorDisplay:
     def __init__(self, monitor_rect, font):
@@ -401,8 +415,8 @@ def draw_hud(surface, font_small, rain, room_overlay, music_player, fps):
     lines = [
         f"FPS: {fps:.0f}",
         f"Rain: {rain.theme_name.upper()} | [T] next | [C] auto cycle rain|{'On' if rain.theme_cycle else 'OFF'}",
-        f"Room: {ROOM_THEMES[room_overlay.current_idx]['name'].upper()} | [R] next | [B] auto cycle room theme {'On' if room_overlay.auto_cycle else 'OFF'} | "
-        f"Now Playing: {music_player.current_track_name()} | [M] next music track | "
+        f"Room: {ROOM_THEMES[room_overlay.current_idx]['name'].upper()} | [R] next | [B] auto cycle room theme {'On' if room_overlay.auto_cycle else 'OFF'} | ",
+        f"Now Playing: {music_player.current_track_name()} | [M] next music track | [N] auto {'On' if music_player.auto_cycle else 'OFF'} ",
         f"Rain Trails: {len(rain.trails)}",
         "| [+/-] rain speed | [CLICK] rain burst | [ESC] quit"
     ]
@@ -476,6 +490,8 @@ def main():
     monitor_display = MonitorDisplay(monitor_rect, monitor_font)
     monitor_display.set_track(music_player.current_track_name())
 
+    music_player.on_track_change = monitor_display.set_track
+
     rain = Rain((room.window_rect.width, room.window_rect.height), rain_font)
     rain_surface = pygame.Surface(
         (room.window_rect.width, room.window_rect.height)
@@ -507,14 +523,20 @@ def main():
                     monitor_display.set_track(music_player.current_track_name())
                 elif event.key == pygame.K_b:
                     room_overlay.auto_cycle = not room_overlay.auto_cycle
+                elif event.key == pygame.K_n:
+                    music_player.auto_cycle = not music_player.auto_cycle
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if room.window_rect.collidepoint(event.pos):
                     local = (event.pos[0] - room.window_rect.x,
                              event.pos[1] - room.window_rect.y)
                     rain.spawn_burst(local, count=14)
+            elif event.type == pygame.USEREVENT + 1:
+                music_player.next_track()
+                monitor_display.set_track(music_player.current_track_name())
 
         # --- Update ---
         rain.update(dt)
+        music_player.update(dt)
 
         # --- Draw layers ---
         screen.fill((255, 255, 255))           # 1. dark background / night sky color
