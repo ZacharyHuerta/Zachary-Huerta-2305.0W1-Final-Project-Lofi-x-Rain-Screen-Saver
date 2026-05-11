@@ -314,8 +314,7 @@ class MusicPlayer:
             return
         
         path = os.path.join(self.audio_folder, self.tracks[self.current_idx])
-        if pygame.mixer.music.get_busy():
-            pygame.mixer.music.fadeout(500)
+        pygame.mixer.music.stop()
         pygame.mixer.music.load(path)
         pygame.mixer.music.play(-1)
         self.playing = True
@@ -329,6 +328,55 @@ class MusicPlayer:
             return "No tracks found"
         name = self.tracks[self.current_idx]
         return os.path.splitext(name)[0] #strips file extension
+
+class MonitorDisplay:
+    def __init__(self, monitor_rect, font):
+        self.rect = monitor_rect
+        self.font = font
+        self.text = ""
+        self.x = float(monitor_rect.right)
+        self.speed = 80
+        self.bg_color = (10, 10, 30)
+
+    def set_track(self, name):
+        self.text = f"  ♪  Now Playing: {name}  ♪  "
+        self.x = float(self.rect.right)
+
+    def update(self, dt):
+        self.x -= self.speed * (dt / 1000)
+        text_width = self.font.size(self.text[0])
+        if self.x < self.rect.left - text_width:
+            self.x = float(self.rect.right)
+
+    def draw(self, surface, rain_theme_name):
+        # Draws monitor dark background
+        pygame.draw.rect(surface, self.bg_color, self.rect)
+
+        # Subtle glow - slightly lighter rect layered on top
+        glow_surf = pygame.Surface((self.rect.width, self.rect.height), pygame.SRCALPHA)
+        glow_surf.fill((40, 60, 80, 30))
+        surface.blit(glow_surf, self.rect.topleft)
+
+        # Get current rain color for text
+        theme = COLOR_THEMES.get(rain_theme_name, COLOR_THEMES["matrix"])
+        text_color = theme["body"]
+
+        # Glow effect - render text slightly transparent behind main text
+        old_clip = surface.get_clip()
+        surface.set_clip(self.rect)
+
+        glow_text = self.font.render(self.text, True, text_color)
+        glow_text.set_alpha(60)
+        text_y = self.rect.y + (self.rect.height - glow_text.get_height()) // 2
+        for offset in [-2, 2]:
+            surface.blit(glow_text, (int(self.x) + offset, text_y))
+            surface.blit(glow_text, (int(self.x), text_y + offset))
+
+        # Main text overlay
+        text_surf = self.font.render(self.text, True, text_color)
+        surface.blit(text_surf, (int(self.x), text_y))
+
+        surface.set_clip(old_clip)
 
 def draw_hud(surface, font_small, rain, room_overlay, music_player, fps):
     lines = [
@@ -403,6 +451,9 @@ def main():
     music_player = MusicPlayer(AUDIO_FOLDER)
     music_player.play()
 
+    monitor_display = MonitorDisplay(monitor_rect, hud_font)
+    monitor_display.set_track(music_player.current_track_name())
+
     rain = Rain((room.window_rect.width, room.window_rect.height), rain_font)
     rain_surface = pygame.Surface(
         (room.window_rect.width, room.window_rect.height)
@@ -431,6 +482,7 @@ def main():
                     room_overlay.next_theme()
                 elif event.key == pygame.K_m:
                     music_player.next_track()
+                    monitor_display.set_track(music_player.current_track_name())
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if room.window_rect.collidepoint(event.pos):
                     local = (event.pos[0] - room.window_rect.x,
@@ -454,6 +506,9 @@ def main():
         
         room_overlay.update(dt)
         room_overlay.draw(screen)
+
+        monitor_display.update(dt)
+        monitor_display.draw(screen, rain.theme_name)
 
         if show_hud:
             draw_hud(screen, hud_font, rain, room_overlay, music_player, clock.get_fps())
