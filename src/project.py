@@ -344,7 +344,9 @@ class Rain():
             x = max(0, min(self.screen_res[0] - ps, pos[0] + ox))
             life = random.randint(500, 2000)
             t = self.theme_name
-            trail = ParticleTrail((x, 0), ps, life, t, self.font)
+            trail = ParticleTrail((x, 0), ps, life, t, self.font, 
+                                  self.speed_min, self.speed_max, 
+                                  self.current_shape, self.angle)
             self.trails.insert(0, trail)
 
     def draw(self, surface):
