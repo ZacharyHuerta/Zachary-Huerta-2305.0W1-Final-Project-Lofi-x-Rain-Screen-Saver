@@ -416,6 +416,7 @@ def main():
         rain_font = pygame.font.Font(None, 18)
 
     hud_font = pygame.font.SysFont("couriernew,monospace,dejavusansmono", 14)
+    monitor_font = pygame.font.SysFont("couriernew,monospace,dejavusansmono", 36)
 
     flags = pygame.FULLSCREEN | pygame.HWSURFACE | pygame.DOUBLEBUF
     info = pygame.display.Info()
@@ -451,7 +452,7 @@ def main():
     music_player = MusicPlayer(AUDIO_FOLDER)
     music_player.play()
 
-    monitor_display = MonitorDisplay(monitor_rect, hud_font)
+    monitor_display = MonitorDisplay(monitor_rect, monitor_font)
     monitor_display.set_track(music_player.current_track_name())
 
     rain = Rain((room.window_rect.width, room.window_rect.height), rain_font)
