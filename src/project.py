@@ -401,7 +401,7 @@ def draw_hud(surface, font_small, rain, room_overlay, music_player, fps):
     lines = [
         f"FPS: {fps:.0f}",
         f"Rain: {rain.theme_name.upper()} | [T] next | [C] auto cycle rain|{'On' if rain.theme_cycle else 'OFF'}",
-        f"Room: {ROOM_THEMES[room_overlay.current_idx]['name'].upper()} | [R] next | [B] auto cycle room theme{'On' if room_overlay.auto_cycle else 'OFF'} "
+        f"Room: {ROOM_THEMES[room_overlay.current_idx]['name'].upper()} | [R] next | [B] auto cycle room theme {'On' if room_overlay.auto_cycle else 'OFF'} | "
         f"Now Playing: {music_player.current_track_name()} | [M] next music track | "
         f"Rain Trails: {len(rain.trails)}",
         "| [+/-] rain speed | [CLICK] rain burst | [ESC] quit"
