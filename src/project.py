@@ -517,11 +517,12 @@ class MonitorDisplay:
 def draw_hud(surface, font_small, rain, room_overlay, music_player, fps):
     lines = [
         f"FPS: {fps:.0f}",
+        f"Rain Trails: {len(rain.trails)}",
         f"Rain: {rain.theme_name.upper()} | [T] next | [C] auto cycle rain| {'On' if rain.theme_cycle else 'OFF'} | Style: {RAIN_STYLE_NAMES[rain.style_idx].upper()} | [S] next Rain Style",
         f"Room: {ROOM_THEMES[room_overlay.current_idx]['name'].upper()} | [R] next | [B] auto cycle room theme | {'On' if room_overlay.auto_cycle else 'OFF'} | ",
         f"Now Playing: {music_player.current_track_name()} | [M] next music track | [N] 30 sec auto cycle | {'On' if music_player.auto_cycle else 'OFF'} |",
-        f"Rain Trails: {len(rain.trails)}",
-        "| [+/-] rain speed | [CLICK] rain burst | [ESC] quit"
+        "| [+/-] rain speed | [CLICK IN RAIN WINDOW] rain burst! | [ESC] quit",
+        " Welcome to Lofi X Rain by Zachary Huerta "
     ]
     y = 6
     for line in lines:
@@ -551,7 +552,7 @@ def main():
     if rain_font is None:
         rain_font = pygame.font.Font(None, 18)
 
-    hud_font = pygame.font.SysFont("couriernew,monospace,dejavusansmono", 28)
+    hud_font = pygame.font.SysFont("couriernew,monospace,dejavusansmono", 20)
     base_dir = os.path.dirname(os.path.abspath(__file__))
     font_path = os.path.join(base_dir, "..", "assets", "fonts", "VT323-Regular.ttf")
     monitor_font = pygame.Font(font_path, 64)
