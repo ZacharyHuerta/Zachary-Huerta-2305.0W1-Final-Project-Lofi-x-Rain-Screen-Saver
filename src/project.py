@@ -276,6 +276,9 @@ class RoomOverlay:
         self.target_idx = 0
         self.fade_speed = 0.02
         self.blend = 0.0
+        self.auto_cycle = False
+        self.auto_timer = 0
+        self.auto_interval = 4000 #cycle every 4 seconds
 
     def next_theme(self):
         self.target_idx = (self.current_idx + 1) % len(self.themes)
@@ -286,6 +289,12 @@ class RoomOverlay:
             self.blend = min(1.0, self.blend + self.fade_speed)
             if self.blend >= 1.0:
                 self.current_idx = self.target_idx
+
+        if self.auto_cycle:
+            self.auto_timer += dt
+            if self.auto_timer >= self.auto_interval:
+                self.auto_timer = 0
+                self.next_theme()
 
     def draw(self, surface):
         cur = self.themes[self.current_idx]["color"]
@@ -391,11 +400,11 @@ class MonitorDisplay:
 def draw_hud(surface, font_small, rain, room_overlay, music_player, fps):
     lines = [
         f"FPS: {fps:.0f}",
-        f"Rain: {rain.theme_name.upper()} | [T] next | [C] auto cycle |{'On' if rain.theme_cycle else 'OFF'}",
-        f"Room: {ROOM_THEMES[room_overlay.current_idx]['name'].upper()} | [R] next |"
-        f"Now Playing: {music_player.current_track_name()} | [M] next | "
-        f"Trails: {len(rain.trails)}",
-        "| [F] fullscreen | [+/-] speed | [CLICK] burst | [ESC] quit"
+        f"Rain: {rain.theme_name.upper()} | [T] next | [C] auto cycle rain|{'On' if rain.theme_cycle else 'OFF'}",
+        f"Room: {ROOM_THEMES[room_overlay.current_idx]['name'].upper()} | [R] next | [B] auto cycle room theme{'On' if room_overlay.auto_cycle else 'OFF'} "
+        f"Now Playing: {music_player.current_track_name()} | [M] next music track | "
+        f"Rain Trails: {len(rain.trails)}",
+        "| [+/-] rain speed | [CLICK] rain burst | [ESC] quit"
     ]
     y = 6
     for line in lines:
@@ -496,6 +505,8 @@ def main():
                 elif event.key == pygame.K_m:
                     music_player.next_track()
                     monitor_display.set_track(music_player.current_track_name())
+                elif event.key == pygame.K_b:
+                    room_overlay.auto_cycle = not room_overlay.auto_cycle
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if room.window_rect.collidepoint(event.pos):
                     local = (event.pos[0] - room.window_rect.x,
@@ -508,7 +519,7 @@ def main():
         # --- Draw layers ---
         screen.fill((255, 255, 255))           # 1. dark background / night sky color
 
-        rain_surface.fill((1, 1, 10))     # 2. fill rain surface dark
+        rain_surface.fill((10, 10, 30))     # 2. fill rain surface dark
         rain.draw(rain_surface)
         screen.blit(rain_surface,           # 3. blit rain into window position
                     room.window_rect.topleft)
