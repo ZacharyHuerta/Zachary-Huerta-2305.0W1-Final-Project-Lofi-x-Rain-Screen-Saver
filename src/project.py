@@ -439,9 +439,9 @@ def main():
     scale_x = resolution[0] / orig_w
     scale_y = resolution[1] / orig_h
 
-    win_x = 946
+    win_x = 944
     win_y = 160
-    win_w = 659
+    win_w = 660
     win_h = 517
 
     monitor_rect = pygame.Rect(
