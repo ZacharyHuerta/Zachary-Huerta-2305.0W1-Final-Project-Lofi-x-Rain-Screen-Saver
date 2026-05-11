@@ -131,6 +131,16 @@ class Particle():
                 self.surface = self._make_surface()
         
     def draw(self, surface):
+        #Glow - background layer
+        glow = self.surface.copy()
+        glow_size = int(self.size * 1.8)
+        glow = pygame.transform.scale(glow, (glow_size, glow_size))
+        glow.set_alpha(int(self.alpha * 0.25))
+        offset = (self.size - glow_size) // 2
+        surface.blit(glow, (self.pos[0] + offset, self.pos[1] + offset))
+
+
+        #Overlay
         self.surface.set_alpha(self.alpha)
         surface.blit(self.surface, self.pos)
 
@@ -416,7 +426,9 @@ def main():
         rain_font = pygame.font.Font(None, 18)
 
     hud_font = pygame.font.SysFont("couriernew,monospace,dejavusansmono", 14)
-    monitor_font = pygame.font.SysFont("couriernew,monospace,dejavusansmono", 36)
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    font_path = os.path.join(base_dir, "..", "assets", "fonts", "VT323-Regular.ttf")
+    monitor_font = pygame.Font(font_path, 36)
 
     flags = pygame.FULLSCREEN | pygame.HWSURFACE | pygame.DOUBLEBUF
     info = pygame.display.Info()
