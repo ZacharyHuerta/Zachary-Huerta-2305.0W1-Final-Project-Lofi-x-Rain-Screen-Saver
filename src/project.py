@@ -34,6 +34,74 @@ ROOM_THEMES = [
     {"name": "neon",    "color": (180, 0,   255, 45)},
 ]
 
+RAIN_STYLES = [
+    {
+        "name: "classic",
+        "birth_rate": 3,
+        "particle_size": 18,
+        "speed_min": 0.8,
+        "speed_max": 2.2,
+        "shape": None,
+        "angle": 0,
+    },
+    {
+        "name: "chars",
+        "birth_rate": 3,
+        "particle_size": 18,
+        "speed_min": 0.8,
+        "speed_max": 2.2,
+        "shape": "char",
+        "angle": 0,
+    },
+    {
+        "name: "shapes",
+        "birth_rate": 3,
+        "particle_size": 20,
+        "speed_min": 0.8,
+        "speed_max": 2.2,
+        "shape": "square",
+        "angle": 0,
+    },
+    {
+        "name: "dense",
+        "birth_rate": 8,
+        "particle_size": 12,
+        "speed_min": 2.0,
+        "speed_max": 4.0,
+        "shape": None,
+        "angle": 0,
+    },
+    {
+        "name: "sparse",
+        "birth_rate": 1,
+        "particle_size": 28,
+        "speed_min": 0.3,
+        "speed_max": 0.8,
+        "shape": None,
+        "angle": 0,
+    },
+    {
+        "name: "glitch",
+        "birth_rate": 5,
+        "particle_size": 18,
+        "speed_min": 0.5,
+        "speed_max": 5.0,
+        "shape": "char",
+        "angle": 0,
+    },
+    {
+        "name: "diagonal",
+        "birth_rate": 3,
+        "particle_size": 18,
+        "speed_min": 0.8,
+        "speed_max":2.2,
+        "shape": None,
+        "angle": 30,
+    },
+]
+
+RAIN_STYLE_NAMES = [s["name"] for s in RAIN_STYLES]
+
 class Particle():
     SHAPE_SQUARE = "square"
     SHAPE_CIRCLE = "circle"
