@@ -36,7 +36,7 @@ ROOM_THEMES = [
 
 RAIN_STYLES = [
     {
-        "name: "classic",
+        "name": "classic",
         "birth_rate": 3,
         "particle_size": 18,
         "speed_min": 0.8,
@@ -45,7 +45,7 @@ RAIN_STYLES = [
         "angle": 0,
     },
     {
-        "name: "chars",
+        "name": "chars",
         "birth_rate": 3,
         "particle_size": 18,
         "speed_min": 0.8,
@@ -54,7 +54,7 @@ RAIN_STYLES = [
         "angle": 0,
     },
     {
-        "name: "shapes",
+        "name": "shapes",
         "birth_rate": 3,
         "particle_size": 20,
         "speed_min": 0.8,
@@ -63,7 +63,7 @@ RAIN_STYLES = [
         "angle": 0,
     },
     {
-        "name: "dense",
+        "name": "dense",
         "birth_rate": 8,
         "particle_size": 12,
         "speed_min": 2.0,
@@ -72,7 +72,7 @@ RAIN_STYLES = [
         "angle": 0,
     },
     {
-        "name: "sparse",
+        "name": "sparse",
         "birth_rate": 1,
         "particle_size": 28,
         "speed_min": 0.3,
@@ -81,7 +81,7 @@ RAIN_STYLES = [
         "angle": 0,
     },
     {
-        "name: "glitch",
+        "name": "glitch",
         "birth_rate": 5,
         "particle_size": 18,
         "speed_min": 0.5,
@@ -90,7 +90,7 @@ RAIN_STYLES = [
         "angle": 0,
     },
     {
-        "name: "diagonal",
+        "name": "diagonal",
         "birth_rate": 3,
         "particle_size": 18,
         "speed_min": 0.8,
@@ -215,25 +215,28 @@ class Particle():
 
 class ParticleTrail():
 
-    def __init__(self, pos, size, life, theme_name, font):
+    def __init__(self, pos, size, life, theme_name, font,
+                 speed_min=0.8, speed_max=2.2, shape=None, angle=0):
         self.pos = pos
         self.size = size
         self.life = life
         self.theme_name = theme_name
         self.font = font
         self.particles = []
-        self.speed = random.uniform(0.8, 2.2)
+        self.speed = random.uniform(speed_min, speed_max)
+        self.shape = shape
+        self.angle = angle
         self.sub_pos = float(pos[1])
         self.step_acc = 0.0
     
     def update(self, dt):
         head = Particle(pos=self.pos, size=self.size, life=self.life,
-                        theme_name=self.theme_name, is_head=True, font=self.font)
+                        theme_name=self.theme_name, is_head=True,
+                        shape=self.shape, font=self.font)
         self.particles.insert(0, head)
 
         for p in self.particles[1:]:
-            p.is_head = False
-        
+            p.is_head = False        
         self._update_particles(dt)
         self._advance(dt)
 
@@ -248,7 +251,10 @@ class ParticleTrail():
     def _advance(self, dt):
         pixels = self.speed * self.size
         x, y = self.pos
-        self.pos = (x, y + int(pixels))
+        angle_rad = math.radians(self.angle)
+        dx = int(pixels * math.sin(angle_rad))
+        dy = int(pixels * math.cos(angle_rad))
+        self.pos = (x + dx, y + dy)
 
     def draw(self, surface):
         for p in self.particles:
@@ -266,6 +272,24 @@ class Rain():
         self.theme_name = random.choice(THEME_NAMES)
         self.theme_timer = 0
         self.theme_cycle = False
+        self.style_idx = 0
+        self.current_shape = None
+        self.angle = 0
+        self.speed_min = 0.8
+        self.speed_max = 2.2
+
+    def apply_style(self, style):
+        self.birth_rate = style["birth_rate"]
+        self.particle_size = style["particle_size"]
+        self.current_shape = style["shape"]
+        self.angle = style["angle"]
+        self.speed_min = style["speed_min"]
+        self.speed_max = style["speed_max"]
+        self.trails = []
+
+    def next_style(self):
+        self.style_idx = (self.style_idx + 1) % len(RAIN_STYLES)
+        self.apply_style(RAIN_STYLES[self.style_idx])
 
     def set_theme(self, name):
         self.theme_name = name
@@ -301,7 +325,9 @@ class Rain():
             x = random.randrange(0, sw, ps)
             life = random.randint(400, 2800)
             t = self.theme_name if random.random() < 0.75 else random.choice(THEME_NAMES)
-            trail = ParticleTrail((x, 0), ps, life, t, self.font)
+            trail = ParticleTrail((x, 0), ps, life, t, self.font,
+                                  self.speed_min, self.speed_max,
+                                  self.current_shape, self.angle)
             self.trails.insert(0, trail)
 
     def spawn_burst(self, pos, count=12):
@@ -482,7 +508,7 @@ class MonitorDisplay:
 def draw_hud(surface, font_small, rain, room_overlay, music_player, fps):
     lines = [
         f"FPS: {fps:.0f}",
-        f"Rain: {rain.theme_name.upper()} | [T] next | [C] auto cycle rain|{'On' if rain.theme_cycle else 'OFF'}",
+        f"Rain: {rain.theme_name.upper()} | [T] next | [C] auto cycle rain|{'On' if rain.theme_cycle else 'OFF'} | Style: {RAIN_STYLE_NAMES[rain.style_idx].upper()} [S] next Rain Style",
         f"Room: {ROOM_THEMES[room_overlay.current_idx]['name'].upper()} | [R] next | [B] auto cycle room theme {'On' if room_overlay.auto_cycle else 'OFF'} | ",
         f"Now Playing: {music_player.current_track_name()} | [M] next music track | [N] 30 sec auto cycle {'On' if music_player.auto_cycle else 'OFF'} ",
         f"Rain Trails: {len(rain.trails)}",
@@ -593,6 +619,8 @@ def main():
                     room_overlay.auto_cycle = not room_overlay.auto_cycle
                 elif event.key == pygame.K_n:
                     music_player.auto_cycle = not music_player.auto_cycle
+                elif event.key == pygame.K_s:
+                    rain.next_style()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if room.window_rect.collidepoint(event.pos):
                     local = (event.pos[0] - room.window_rect.x,
