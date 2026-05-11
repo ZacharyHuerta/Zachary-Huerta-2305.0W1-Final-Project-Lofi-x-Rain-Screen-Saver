@@ -287,12 +287,12 @@ class RoomOverlay:
         a = int(cur[3] + (tgt[3] - cur[3]) * self.blend)
 
         # Drawing Overlay
-        overlay = pygame.Surface(self.resolution, pygame.SRCALPHA)
+        overlay = pygame.Surface(surface.get_size(), pygame.SRCALPHA)
         overlay.fill((r, g, b, a))
 
         #Punching holes in monitor and window
         for rect in self.exclude_rects:
-            pygame.draw.rect(overlay, (0, 0, 0, 0), rect)
+            overlay.fill((0, 0, 0, 0), rect)
 
         surface.blit(overlay, (0,0))
 
@@ -409,6 +409,9 @@ def main():
                     room.window_rect.topleft)
 
         room.draw(screen)                   # 4. room drawn on top (black hole = transparent)
+        
+        # pygame.draw.rect(screen, (255, 255, 255), monitor_rect) # 5. clear monitor area to white before overlay so no color bleeds through
+        
         room_overlay.update(dt)
         room_overlay.draw(screen)
 
