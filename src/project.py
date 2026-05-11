@@ -340,7 +340,7 @@ class MusicPlayer:
         pygame.mixer.music.stop()
         pygame.mixer.music.load(path)
         pygame.mixer.music.play()
-        pygame.mixer.music.set_endevent(pygame.USERREVENT + 1)
+        pygame.mixer.music.set_endevent(pygame.USEREVENT + 1)
         self.playing = True
 
     def next_track(self):
@@ -416,7 +416,7 @@ def draw_hud(surface, font_small, rain, room_overlay, music_player, fps):
         f"FPS: {fps:.0f}",
         f"Rain: {rain.theme_name.upper()} | [T] next | [C] auto cycle rain|{'On' if rain.theme_cycle else 'OFF'}",
         f"Room: {ROOM_THEMES[room_overlay.current_idx]['name'].upper()} | [R] next | [B] auto cycle room theme {'On' if room_overlay.auto_cycle else 'OFF'} | ",
-        f"Now Playing: {music_player.current_track_name()} | [M] next music track | [N] auto {'On' if music_player.auto_cycle else 'OFF'} ",
+        f"Now Playing: {music_player.current_track_name()} | [M] next music track | [N] 30 sec auto cycle {'On' if music_player.auto_cycle else 'OFF'} ",
         f"Rain Trails: {len(rain.trails)}",
         "| [+/-] rain speed | [CLICK] rain burst | [ESC] quit"
     ]
